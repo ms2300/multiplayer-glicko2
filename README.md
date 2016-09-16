@@ -42,7 +42,7 @@ Make sure you have django smart_str and smart_unicode installed
 
 ### Large Scale Cross County Meets
 
-I have used this algorithm to effectively rank almost every single high school cross country from the last decade. Running this algorithm with x boy runners, y girl runners and z competitions, I produced a mean elo of xxxx for girls and a mean elo of yyyy for boys respectively. In addition, the ratings produced a nicely ordered bell curve just like they theoretically should.
+I have used this algorithm to effectively rank almost every single high school cross country from the last decade. Running this algorithm with 1,074,469 boy runners, 870,925 girl runners and 197,571 competitions, I produced a mean rating of 1508 for girls and a mean rating of 1506 for boys respectively. In addition, the ratings produced a nicely ordered bell curve just like they theoretically should.
 
 ![alt tag](https://github.com/ms2300/multiplayer-glicko2/blob/master/img/boysGlickoHistogram.png)
 <hr>
