@@ -1,39 +1,39 @@
 #Introduction
 
-From [Wikipedia](https://en.wikipedia.org/wiki/Elo_rating_system),
+From [Wikipedia](https://en.wikipedia.org/wiki/Glicko_rating_system),
 
-The Elo rating system is a method for calculating the relative skill levels of players in competitor-versus-competitor games such as chess. It is named after its creator Arpad Elo, a Hungarian-born American physics professor.
+The Glicko rating system and Glicko-2 rating system are methods for assessing a player's strength in games of skill, such as chess and go. It was invented by Mark Glickman as an improvement of the Elo rating system, and initially intended for the primary use as a chess rating system. Glickman's principal contribution to measurement is "ratings reliability", called RD, for ratings deviation.
 
-The Elo system was originally invented as an improved chess rating system but is also used as a rating system for multiplayer competition in a number of video games, association football, gridiron football, basketball, Major League Baseball, Scrabble, snooker and other games.
+Both Glicko and Glicko-2 rating systems are under public domain and found implemented on game servers online (like Lichess, Free Internet Chess Server, Chess.com, Counter Strike: Global Offensive, Guild Wars 2).[1] The formulas used for the systems can be found on the Glicko website.
 
-The difference in the ratings between two players serves as a predictor of the outcome of a match. Two players with equal ratings who play against each other are expected to score an equal number of wins. A player whose rating is 100 points greater than their opponent's is expected to score 64%; if the difference is 200 points, then the expected score for the stronger player is 76%.
+The RD measures the accuracy of a player's rating, with one RD being equal to one standard deviation. For example, a player with a rating of 1500 and an RD of 50 has a real strength between 1400 and 1600 (two standard deviations from 1500) with 95% confidence. Twice the RD is added and subtracted from their rating to calculate this range. After a game, the amount the rating changes depends on the RD: the change is smaller when the player's RD is low (since their rating is already considered accurate), and also when their opponent's RD is high (since the opponent's true rating is not well known, so little information is being gained). The RD itself decreases after playing a game, but it will increase slowly over time of inactivity.
 
-A player's Elo rating is represented by a number which increases or decreases depending on the outcome of games between rated players. After every game, the winning player takes points from the losing one. The difference between the ratings of the winner and loser determines the total number of points gained or lost after a game. In a series of games between a high-rated player and a low-rated player, the high-rated player is expected to score more wins. If the high-rated player wins, then only a few rating points will be taken from the low-rated player. However, if the lower rated player scores an upset win, many rating points will be transferred. The lower rated player will also gain a few points from the higher rated player in the event of a draw. This means that this rating system is self-correcting. A player whose rating is too low should, in the long run, do better than the rating system predicts, and thus gain rating points until the rating reflects their true playing strength.
+The Glicko-2 rating system improves upon the Glicko rating system and further introduces the rating volatility σ. A very slightly modified version of the Glicko-2 rating system is implemented by the Australian Chess Federation.
 
 <hr>
 
-My exact algorithm is based off the ideas laid out [here](http://elo-norsak.rhcloud.com/index.php)
+My exact algorithm follows [here](http://www.glicko.net/glicko/glicko2.pdf)
 
 
 ### The Specifics
 
-This specific variation of the elo ranking system is designed for large multiplayer competitions with the number of competitors ideally being between 20 and 190 runners. This program was initially wrote with the intention of ranking cross country meets and therefore had to be both flexible on size of competition and unpredictability of competitors. While there have been multiplayer versions of elo written before (and even one based off the same source), to my knowledge none have been wrote that are suited for something as large as cross country.
+This variation of the Glicko-2 Rating System is designed for large multiplayer games consisting of anywhere between 20 and 190 competitors. This program was designed for ranking individual high school cross country runners based on large amounts of data. As opposed to elo, glicko ratings are much more difficult to control when competitions become quite large (<150 competitors), and therefore the constants such as initial confidence and both system volatility and initial volatility are very open to change as required.
 
 
 ### Deviations from Original Head-to-Head Algorithm
 
-- Competition wide k value now scales linearly downward as the size of the competition grows
+- The weight for each head to head matchup is not only based on opponents phi value but also on the size of the competition the player is competing in
 
-- About the top 5% of overall competitors within a system receive lower k values to stabilize ratings on the edge of the bell curve and reduce the potential for elo deflation.
+- The epsilon value relating to the sigma optimization function is much larger than recommended in an effort to cut back on amount of iterations at the slight loss of quality
 
-- Expected score algorithm changed slightly to make an elo difference of 400 points have an expected score of .25 instead of .0909 and .75 instead of .909 respectively.
+- The initial confidence value is magnitudes lower than recommended due to the fact that if a first time competitor scored highly in a fairly high ranked competition, the algorithm would run wild, the competitor would gain huge amounts of points, and the entire system would slowly spiral out of control.
 
-- Make the floor of an elo ranking be zero
+- The initial volatility and system wide volatility values are magnitudes lower than recommended for the same reason stated above.
 
 
 ### Example
 
-I've included and example.py file and a small json file containing 5 high school cross country meets from 2005 in Oregon. To run the example and see the elo changes that these meets produce run ->
+I've included and example.py file and a small json file containing 5 high school cross country meets from 2005 in Oregon. To run the example and see the rating changes that these meets produce run ->
 ```
 python example.py smallish.json
 ```
@@ -42,13 +42,13 @@ Make sure you have django smart_str and smart_unicode installed
 
 ### Large Scale
 
-I have used this algorithm to effectively rank almost every single high school cross country from the last decade. Running this algorithm with 1,075,214 boy runners, 871,502 girl runners and 197,571 competitions, I produced a mean elo of 1498 for girls and a mean elo of 1499 for boys respectively. In addition, the results seemed to map the desired bell curve pretty darn well.
+I have used this algorithm to effectively rank almost every single high school cross country from the last decade. Running this algorithm with x boy runners, y girl runners and z competitions, I produced a mean elo of xxxx for girls and a mean elo of yyyy for boys respectively. In addition, the ratings produced a nicely ordered bell curve just like they theoretically should.
 
-![alt tag](https://github.com/ms2300/multiplayer-elo/blob/master/img/boysEloHistogram.png)
+![alt tag](https://github.com/ms2300/multiplayer-glicko2/blob/master/img/boysGlickoHistogram.png)
 <hr>
-![alt tag](https://github.com/ms2300/multiplayer-elo/blob/master/img/girlsEloHistogram.png)
+![alt tag](https://github.com/ms2300/multiplayer-glicko2/blob/master/img/girlsGlickoHistogram.png)
 
 
-Finally, this program graphed history / elo over time for every athlete that I had data on. For instance my graph from time running in high school is shown below.
+Finally, this program graphed history / glicko2 rating over time for every athlete that I had data on. For instance my graph from time running in high school is shown below.
 
-![alt tag](https://github.com/ms2300/multiplayer-elo/blob/master/img/mattSewallElo.png)
+![alt tag](https://github.com/ms2300/multiplayer-glicko2/blob/master/img/mattSewallGlicko.png)
