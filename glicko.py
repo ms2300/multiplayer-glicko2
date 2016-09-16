@@ -20,33 +20,36 @@ _CONV = 173.7178
 _EPS = 0.001
 
 
-def findSigma(mu, phi, sigma, change, variance):
+def findSigma(mu, phi, sigma, change, v):
     alpha = math.log(sigma ** 2)
-    counterx = 0
 
     def f(x):
-        tmp = phi ** 2 + variance + math.exp(x)
+        tmp = phi ** 2 + v + math.exp(x)
         a = math.exp(x) * (change ** 2 - tmp) / (2 * tmp ** 2)
         b = (x - alpha) / (_VOL ** 2)
         return a - b
 
     a = alpha
-    if change ** 2 > phi ** 2 + variance:
-        b = math.log(change ** 2 - phi ** 2 - variance)
+    if change ** 2 > phi ** 2 + v:
+        b = math.log(change ** 2 - phi ** 2 - v)
     else:
         k = 1
         while f(alpha - k * _VOL) < 0:
             k += 1
         b = alpha - k * _VOL
-    fa, fb = f(a), f(b)
+    fa = f(a)
+    fb = f(b)
+    # Larger _EPS used to speed iterations up slightly
     while abs(b - a) > _EPS:
         c = a + (a - b) * fa / (fb - fa)
         fc = f(c)
         if fc * fb < 0:
-            a, fa = b, fb
+            a = b
+            fa = fb
         else:
             fa /= 2
-        b, fb = c, fc
+        b = c
+        fb = fc
     return math.e ** (a / 2)
 
 
@@ -56,12 +59,13 @@ def calculateGlicko(players):
         multi = _MAXMULTI
     else:
         multi = _WIN - _MULTISLOPE * N
+    # compare every head to head matchup in a given compeition
     for i in players:
         mu = (i.rating - _INITRAT) / _CONV
         phi = i.confidence / _CONV
         sigma = i.volatility
-        variance_inv = 0
-        difference = 0
+        v_inv = 0
+        delta = 0
         for j in players:
             if i is not j:
                 oppMu = (j.rating - _INITRAT) / _CONV
@@ -72,19 +76,22 @@ def calculateGlicko(players):
                     S = _WIN
                 else:
                     S = _CATCH
+                # Change the weight of the matchup based on opponent confidence
                 weighted = 1 / math.sqrt(1 + 3 * oppPhi ** 2 / math.pi ** 2)
+                # Change the weight of the matchup based on competition size
                 weighted = weighted * multi
                 expected_score = 1 / (1 + math.exp(-weighted * (mu - oppMu)))
-                variance_inv += weighted ** 2 * expected_score * \
+                v_inv += weighted ** 2 * expected_score * \
                     (1 - expected_score)
-                difference += weighted * (S - expected_score)
-        if variance_inv != 0:
-            variance = 1 / variance_inv
-            change = variance * difference
-            newSigma = findSigma(mu, phi, sigma, change, variance)
+                delta += weighted * (S - expected_score)
+        if v_inv != 0:
+            v = 1 / v_inv
+            change = v * delta
+            newSigma = findSigma(mu, phi, sigma, change, v)
             phiAst = math.sqrt(phi ** 2 + newSigma ** 2)
-            newPhi = 1 / math.sqrt(1 / phiAst ** 2 + 1 / variance)
-            newMu = mu + newPhi ** 2 * difference
+            # New confidence based on competitors volatility and v
+            newPhi = 1 / math.sqrt(1 / phiAst ** 2 + 1 / v)
+            newMu = mu + newPhi ** 2 * delta
             i.rating = newMu * _CONV + _INITRAT
             i.confidence = newPhi * _CONV
             i.volatility = newSigma

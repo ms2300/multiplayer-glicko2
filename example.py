@@ -9,6 +9,7 @@ from sys import argv
 from datetime import datetime
 from django.utils.encoding import smart_str, smart_unicode
 from operator import itemgetter
+from glicko import *
 from glicko_classes import *
 
 
@@ -25,14 +26,17 @@ _INITVOL = .06
 
 
 def do_glicko(data, meetName, meetDate, gender):
-    meet = RatingPeriod()
-    meet.players = []
     if gender == "female":
         ratings = ratings_girls
         entries = entries_girls
     elif gender == "male":
         ratings = ratings_boys
         entries = entries_boys
+
+    # Add players to competition and calculate ratings
+
+    meet = RatingPeriod()
+    meet.competitors = []
     for dat in data:
         name = dat[0]
         school = dat[2]
@@ -42,12 +46,17 @@ def do_glicko(data, meetName, meetDate, gender):
             rating = float(ratings.get(player)[0])
             confidence = float(ratings.get(player)[1])
             vol = float(ratings.get(player)[2])
-            meet.addPlayer(name, school, place, rating, confidence, vol)
+            meet.addCompetitor(name, school, place, rating, confidence, vol)
         else:
-            meet.addPlayer(name, school, place, _INITRAT, _INITCONF, _INITVOL)
-    if len(meet.players) > 1:
-        calculateGlicko(meet.players)
-        for runner in meet.players:
+            # Initial ratings if a player hasn't competed before
+            meet.addCompetitor(name, school, place, _INITRAT, _INITCONF,
+                               _INITVOL)
+    if len(meet.competitors) > 1:
+        calculateGlicko(meet.competitors)
+
+        # Take results of competition and append data
+
+        for runner in meet.competitors:
             ath = Player(runner.name, runner.school)
             ratings[ath] = [runner.rating, runner.confidence,
                             runner.volatility]
@@ -106,14 +115,6 @@ def align_data(filename):
                                         smart_str(detail[u'resultSchool']))
                         if killx is False:
                             places.append(ath_detail_List)
-                    """
-                    sorted(places, key=itemgetter(1))
-                    lastPlace = 0
-                    for place in places:
-                        if abs(int(lastPlace) - int(place[1])) != 1:
-                            kill = True
-                        lastPlace = int(place[1])
-                    """
                     data.append(places)
                     if kill is False:
                         sort.append(data)
@@ -164,8 +165,7 @@ def main():
             name = smart_str(event[1][0])
             date = event[0]
             gender = event[2]
-            if date.year > 2007:
-                do_glicko(event[3], name, date, gender)
+            do_glicko(event[3], name, date, gender)
     sorted_boys = sorted(ratings_boys.items(), key=itemgetter(1))
     sorted_girls = sorted(ratings_girls.items(), key=itemgetter(1))
     write_rating(sorted_boys, "male")

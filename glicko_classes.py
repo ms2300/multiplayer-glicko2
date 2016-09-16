@@ -15,6 +15,9 @@ class GlickoPlayer:
         return hash((self.name, self.school))
 
 
+# Used as a class for example.py, and is not relevant to the core algorithm
+
+
 class Player:
     def __init__(self, name, school):
         self.name = name
@@ -32,9 +35,10 @@ class Player:
 
 
 class RatingPeriod:
-    players = []
+    competitors = []
 
-    def addPlayer(self, name, school, place, rating, confidence, volatility):
-        player = GlickoPlayer(name, school, place, rating, confidence,
-                              volatility)
-        self.players.append(player)
+    def addCompetitor(self, name, school, place, rating, confidence,
+                      volatility):
+        competitor = GlickoPlayer(name, school, place, rating, confidence,
+                                  volatility)
+        self.competitors.append(competitor)
