@@ -1,3 +1,7 @@
+# Copyright (c) 2016 by Matt Sewall.
+# All rights reserved.
+
+
 class GlickoPlayer:
     def __init__(self, name, school, place, rating, confidence, volatility):
         self.name = name

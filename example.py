@@ -1,5 +1,7 @@
 # Glicko
 # python 3.4.3
+# Copyright (c) 2016 by Matt Sewall.
+# All rights reserved.
 import math
 import csv
 import json
@@ -157,8 +159,11 @@ def write_rating(ratings, gender):
 
 def main():
     events = align_data(argv[1])
+    count = 0
     for event in events:
         if len(event) == 4:
+            print count
+            count += 1
             name = smart_str(event[1][0])
             date = event[0]
             gender = event[2]

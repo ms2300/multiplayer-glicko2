@@ -1,5 +1,7 @@
 # Glicko
 # python 3.4.3
+# Copyright (c) 2016 by Matt Sewall.
+# All rights reserved.
 import math
 from glicko_classes import *
 

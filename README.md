@@ -40,7 +40,7 @@ python example.py smallish.json
 Make sure you have django smart_str and smart_unicode installed
 
 
-### Large Scale
+### Large Scale Cross County Meets
 
 I have used this algorithm to effectively rank almost every single high school cross country from the last decade. Running this algorithm with x boy runners, y girl runners and z competitions, I produced a mean elo of xxxx for girls and a mean elo of yyyy for boys respectively. In addition, the ratings produced a nicely ordered bell curve just like they theoretically should.
 
@@ -49,6 +49,6 @@ I have used this algorithm to effectively rank almost every single high school c
 ![alt tag](https://github.com/ms2300/multiplayer-glicko2/blob/master/img/girlsGlickoHistogram.png)
 
 
-Finally, this program graphed history / glicko2 rating over time for every athlete that I had data on. For instance my graph from time running in high school is shown below.
+Finally, this program graphed history / glicko2 over time for every athlete that I had data on. For instance my graph over time running in high school is shown below.
 
 ![alt tag](https://github.com/ms2300/multiplayer-glicko2/blob/master/img/mattSewallGlicko.png)
