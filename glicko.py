@@ -3,7 +3,6 @@
 # Copyright (c) 2016 by Matt Sewall.
 # All rights reserved.
 import math
-from glicko_classes import *
 
 # Background information - https://en.wikipedia.org/wiki/Glicko_rating_system
 # Based on this equation - http://www.glicko.net/glicko/glicko2.pdf
